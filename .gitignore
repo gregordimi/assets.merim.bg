@@ -1,0 +1,17 @@
+# OS files
+.DS_Store
+Thumbs.db
+
+# Environment variables
+.env
+
+# Ignore binary image contents in data directory, but preserve the folder structure
+data/*
+!data/stores/
+!data/stores/.gitkeep
+!data/product_sample_images_new/
+!data/product_sample_images_new/.gitkeep
+!data/ribi/
+!data/ribi/.gitkeep
+!data/assets/
+!data/assets/.gitkeep
