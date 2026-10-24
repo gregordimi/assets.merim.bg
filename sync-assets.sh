@@ -14,7 +14,7 @@ SERVER="${1:-${SERVER_IP:-}}"
 LOCAL_DIR="${2:-${LOCAL_ASSETS_DIR:-}}"
 
 # 3. Remote Target Directory: argument $3 > REMOTE_ASSETS_DIR env variable > default
-REMOTE_DIR="${3:-${REMOTE_ASSETS_DIR:-/mnt/volume-fsn1-1/assets-cdn/data/}}"
+REMOTE_DIR="${3:-${REMOTE_ASSETS_DIR:-/mnt/volume-fsn1-1/assets.merim.bg/data/}}"
 
 # Validate server
 if [[ -z "$SERVER" ]]; then

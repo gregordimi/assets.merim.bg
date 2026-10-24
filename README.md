@@ -7,9 +7,9 @@ High-performance, lightweight Nginx CDN container for hosting static assets unde
 ## 1. Directory Structure
 
 ### Server Persistent Volume
-Location on Hetzner server (`/mnt/volume-fsn1-1/assets-cdn`):
+Location on Hetzner server (`/mnt/volume-fsn1-1/assets.merim.bg`):
 ```text
-/mnt/volume-fsn1-1/assets-cdn/
+/mnt/volume-fsn1-1/assets.merim.bg/
 ├── docker-compose.yml
 ├── nginx.conf
 └── data/
@@ -40,11 +40,11 @@ Location on Hetzner server (`/mnt/volume-fsn1-1/assets-cdn`):
 
 ## 2. Server Setup (Hetzner VPS)
 
-SSH into your server and prepare the persistent storage directory:
+SSH into your server and prepare the storage directory:
 
 ```bash
-mkdir -p /mnt/volume-fsn1-1/assets-cdn/data
-cd /mnt/volume-fsn1-1/assets-cdn
+mkdir -p /mnt/volume-fsn1-1/assets.merim.bg/data
+cd /mnt/volume-fsn1-1/assets.merim.bg
 ```
 
 ---
@@ -64,12 +64,12 @@ From your local terminal in this repository:
 ### Option B: Manual `rsync`
 Run from your local Mac terminal inside `merim-bg-landing`:
 ```bash
-rsync -avzP public/storage/ root@<YOUR_SERVER_IP>:/mnt/volume-fsn1-1/assets-cdn/data/
+rsync -avzP public/storage/ root@<YOUR_SERVER_IP>:/mnt/volume-fsn1-1/assets.merim.bg/data/
 ```
 
 ### Verify permissions on the server:
 ```bash
-chmod -R 755 /mnt/volume-fsn1-1/assets-cdn/data
+chmod -R 755 /mnt/volume-fsn1-1/assets.merim.bg/data
 ```
 
 ---
@@ -88,7 +88,7 @@ chmod -R 755 /mnt/volume-fsn1-1/assets-cdn/data
 ### Option B: Standalone Terminal via SSH
 If managing directly on the server:
 ```bash
-cd /mnt/volume-fsn1-1/assets-cdn
+cd /mnt/volume-fsn1-1/assets.merim.bg
 docker compose up -d
 ```
 
