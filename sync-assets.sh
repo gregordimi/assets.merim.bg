@@ -31,7 +31,7 @@ SERVER_USER="${SERVER_USER:-}"
 LOCAL_DIR="${2:-${LOCAL_ASSETS_DIR:-}}"
 
 # 4. Remote Target Directory
-REMOTE_DIR="${3:-${REMOTE_ASSETS_DIR:-/mnt/volume-fsn1-1/assets.merim.bg/data/}}"
+REMOTE_DIR="${3:-${REMOTE_ASSETS_DIR:-/mnt/volume-fsn1-1/assets-cdn/data/}}"
 
 # 5. Optional SSH key path or port
 SSH_KEY="${SSH_KEY:-}"
@@ -94,6 +94,9 @@ echo " Destination:  ${SSH_DEST}:${REMOTE_DIR}"
 [[ -n "$SSH_KEY" ]] && echo " SSH Key:      ${SSH_KEY}"
 [[ -n "$SSH_PORT" && "$SSH_PORT" != "22" ]] && echo " SSH Port:     ${SSH_PORT}"
 echo "=========================================================="
+
+echo "===> Ensuring remote directory exists on server..."
+${SSH_CMD} "${SSH_DEST}" "mkdir -p ${REMOTE_DIR}"
 
 echo "===> Syncing assets via rsync..."
 rsync -avzP -e "${SSH_CMD}" "${LOCAL_DIR}" "${SSH_DEST}:${REMOTE_DIR}"
