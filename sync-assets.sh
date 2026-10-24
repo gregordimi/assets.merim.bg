@@ -1,16 +1,31 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Load .env file if present
+# Robustly load .env file if present (handles inline comments, quotes, spaces, ~ expansion)
 if [[ -f ".env" ]]; then
-  export $(grep -v '^#' .env | xargs -0 2>/dev/null || true)
+  while IFS='=' read -r key value || [[ -n "$key" ]]; do
+    # Trim leading/trailing whitespace from key
+    key="$(echo "$key" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
+    # Skip comments or empty lines
+    [[ "$key" =~ ^#.*$ || -z "$key" ]] && continue
+    
+    # Strip any inline comment (# preceded by whitespace)
+    value="$(echo "$value" | sed -e 's/[[:space:]]#.*//' -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
+    # Strip quotes if present
+    value="${value#[\"\']}"
+    value="${value%[\"\']}"
+    # Expand tilde ~ to HOME directory
+    value="${value/#\~/$HOME}"
+    
+    export "$key=$value"
+  done < .env
 fi
 
 # 1. Server host/IP
 SERVER="${1:-${SERVER_IP:-}}"
 
-# 2. Server SSH user (defaults to root if not specified and not already in SERVER)
-SERVER_USER="${SERVER_USER:-root}"
+# 2. Server SSH user
+SERVER_USER="${SERVER_USER:-}"
 
 # 3. Local Source Directory
 LOCAL_DIR="${2:-${LOCAL_ASSETS_DIR:-}}"
@@ -30,7 +45,10 @@ if [[ -z "$SERVER" ]]; then
   exit 1
 fi
 
-# Determine SSH destination: if user is already included (e.g. user@host), keep it as is
+# Determine SSH destination:
+# - If SERVER contains '@', use as-is
+# - If SERVER_USER is set and SERVER doesn't contain '@', use user@server
+# - Otherwise, use SERVER directly (ideal for ~/.ssh/config aliases)
 if [[ "$SERVER" == *"@"* ]]; then
   SSH_DEST="${SERVER}"
 elif [[ -n "${SERVER_USER}" ]]; then
@@ -62,9 +80,11 @@ fi
 # Build SSH options string for rsync
 SSH_CMD="ssh"
 if [[ -n "$SSH_KEY" ]]; then
+  # Expand ~ if not already expanded
+  SSH_KEY="${SSH_KEY/#\~/$HOME}"
   SSH_CMD="${SSH_CMD} -i ${SSH_KEY}"
 fi
-if [[ -n "$SSH_PORT" ]]; then
+if [[ -n "$SSH_PORT" && "$SSH_PORT" != "22" ]]; then
   SSH_CMD="${SSH_CMD} -p ${SSH_PORT}"
 fi
 
@@ -72,7 +92,7 @@ echo "=========================================================="
 echo " Source:       ${LOCAL_DIR}"
 echo " Destination:  ${SSH_DEST}:${REMOTE_DIR}"
 [[ -n "$SSH_KEY" ]] && echo " SSH Key:      ${SSH_KEY}"
-[[ -n "$SSH_PORT" ]] && echo " SSH Port:     ${SSH_PORT}"
+[[ -n "$SSH_PORT" && "$SSH_PORT" != "22" ]] && echo " SSH Port:     ${SSH_PORT}"
 echo "=========================================================="
 
 echo "===> Syncing assets via rsync..."
