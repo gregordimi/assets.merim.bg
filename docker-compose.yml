@@ -2,12 +2,11 @@ version: '3.8'
 
 services:
   assets-cdn:
-    image: nginx:alpine
+    build: .
     container_name: merim-assets-cdn
     restart: always
     volumes:
       - /mnt/volume-fsn1-1/assets-cdn/data:/usr/share/nginx/html:ro
-      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
     ports:
       # If running standalone without Coolify Traefik, expose on 80/443.
       # If running in Coolify, Coolify Traefik handles the port mapping.
